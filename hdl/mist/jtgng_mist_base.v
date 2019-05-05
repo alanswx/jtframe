@@ -132,19 +132,22 @@ assign scandoubler_disable = 1'b1;
 generate
     
 if( CLK_SPEED==12 || CLK_SPEED==24 ) begin
+    wire vgapll_in;
+
     // 24 MHz or 12 MHz base clock
     jtgng_pll0 u_pll_game (
         .inclk0 ( CLOCK_27[0] ),
         .c1     ( clk_rgb     ),
         .c2     ( clk_rom     ), // 96
         .c3     ( SDRAM_CLK   ), // 96 (shifted by -2.5ns)
-        .locked ( locked      )
+        .c4     ( vgapll_in   ),
+        .locked ( locked      ) // 12
     );
 
     // assign SDRAM_CLK = clk_rom;
 
     jtgng_pll1 u_pll_vga (
-        .inclk0 ( clk_rgb   ),
+        .inclk0 ( vgapll_in ),
         .c0     ( clk_vga   ) // 25
     );
 end

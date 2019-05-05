@@ -162,7 +162,7 @@ always @(posedge clk or posedge rst)
         if( cnt_state!=3'd0 ||
             readon || /* when not downloading */
             writeon   /* when downloading */)
-            cnt_state <= cnt_state==3'd6 ? 3'd0 : (cnt_state + 3'd1);
+            cnt_state <= cnt_state==3'd5 ? 3'd0 : (cnt_state + 3'd1);
         case( cnt_state )
         default: begin // wait
             SDRAM_CMD <= CMD_NOP;
@@ -173,10 +173,10 @@ always @(posedge clk or posedge rst)
             read_cycle        <= 1'b0;
             autorefresh_cycle <= 1'b0;
             burst_done        <= 1'b0;
-            // if( read_cycle) begin
-            //     data_read[15: 0] <= data_read[31:16];
-            //     data_read[31:16] <= SDRAM_DQ;
-            // end
+            if( read_cycle) begin
+                data_read[15: 0] <= data_read[31:16];
+                data_read[31:16] <= SDRAM_DQ;
+            end
             {SDRAM_DQMH, SDRAM_DQML } <= 2'b00;
             if( set_burst ) begin
                 SDRAM_CMD <= CMD_LOAD_MODE;
@@ -217,13 +217,13 @@ always @(posedge clk or posedge rst)
             end
             SDRAM_CMD <= CMD_NOP;
         end
-        3'd6: begin
-            if( read_cycle) begin
-                data_read[15: 0] <= data_read[31:16];
-                data_read[31:16] <= SDRAM_DQ;
-            end
-            SDRAM_CMD <= CMD_NOP;
-        end
+        // 3'd6: begin
+        //     if( read_cycle) begin
+        //         data_read[15: 0] <= data_read[31:16];
+        //         data_read[31:16] <= SDRAM_DQ;
+        //     end
+        //     SDRAM_CMD <= CMD_NOP;
+        // end
         endcase
     end
 endmodule // jtgng_sdram

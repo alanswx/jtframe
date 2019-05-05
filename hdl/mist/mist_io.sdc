@@ -48,8 +48,9 @@ create_clock -name {SPI_SCK}  -period 41.666 -waveform { 20.8 41.666 } [get_port
 #**************************************************************
 
 derive_pll_clocks -create_base_clocks
-create_generated_clock -name {sdclk_pin} -source [get_pins {u_frame|u_base|u_pll_game|altpll_component|auto_generated|pll1|clk[2]}] -master_clock {u_frame|u_base|u_pll_game|altpll_component|auto_generated|pll1|clk[2]} [get_ports {SDRAM_CLK}] 
+#create_generated_clock -name {sdclk_pin} -source [get_pins {u_frame|u_base|u_pll_game|altpll_component|auto_generated|pll1|clk[3]}] [get_ports {SDRAM_CLK}] 
 
+set SDRAM_PLL u_frame|u_base|u_pll_game|altpll_component|auto_generated|pll1|clk[3]
 
 
 #**************************************************************
@@ -67,25 +68,27 @@ derive_clock_uncertainty
 # Set Input Delay
 #**************************************************************
 
+remove_input_delay [get_ports SDRAM_DQ[*]]
+
 # This is tAC in the data sheet. It is the time it takes to the
 # output pins of the SDRAM to change after a new clock edge.
 # This is used to calculate set-up time conditions in the FF
 # latching the signal inside the FPGA
-set_input_delay -clock sdclk_pin -max 6 [get_ports SDRAM_DQ[*]]
+set_input_delay -clock [get_clocks $SDRAM_PLL] -max 6 [get_ports SDRAM_DQ[*]] -reference_pin SDRAM_CLK
 
 # This is tOH in the data sheet. It is the time data is hold at the
 # output pins of the SDRAM after a new clock edge.
 # This is used to calculate hold time conditions in the FF
 # latching the signal inside the FPGA (3.2)
-set_input_delay -clock sdclk_pin -min 3 [get_ports SDRAM_DQ[*]]
+set_input_delay -clock [get_clocks $SDRAM_PLL] -min 3 [get_ports SDRAM_DQ[*]] -reference_pin SDRAM_CLK
 
 #**************************************************************
 # Set Output Delay
 #**************************************************************
-
-set_output_delay -clock sdclk_pin -max 1.5 [get_ports SDRAM_*]
-set_output_delay -clock sdclk_pin -min 0.8 [get_ports SDRAM_*]
-
+remove_output_delay [get_ports SDRAM_*]
+set_output_delay -clock [get_clocks $SDRAM_PLL] -max 1.5 [get_ports SDRAM_*] -reference_pin SDRAM_CLK
+set_output_delay -clock [get_clocks $SDRAM_PLL] -min 0.8 [get_ports SDRAM_*] -reference_pin SDRAM_CLK
+remove_output_delay SDRAM_CLK
 
 
 #**************************************************************

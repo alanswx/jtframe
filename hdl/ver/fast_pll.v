@@ -14,37 +14,21 @@ assign locked = 1'b1;
 real base_clk = `BASE_CLK;
 initial $display("INFO: base clock set to %f ns",base_clk);
 `else
-real base_clk = 9.259;
+real base_clk = 10.417; // 96 MHz
 `endif
 
 initial begin
     c2 = 1'b0;
-    // forever c2 = #(10.417/2) ~c2; // 96 MHz
-    forever c2 = #(base_clk/2.0) ~c2; // 108 MHz
+    forever c2 = #(base_clk/2.0) ~c2;
 end
 
-reg [3:0] div=5'd0;
+reg [1:0] div='d0;
 
 initial c1=1'b0;
 
-`ifndef CLK24
-    always @(posedge c2) begin
-        div <= div=='d8 ? 'd0 : div+'d1;
-        if ( div=='d0 ) c1 <= 1'b0;
-        if ( div=='d4 ) c1 <= 1'b1;
-
-    end
-`else
-    always @(posedge c2) begin
-        div <= div=='d8 ? 'd0 : div+'d1;
-        case( div )
-            5'd0: c1 <= 1'b0;
-            5'd2: c1 <= 1'b1;
-            5'd4: c1 <= 1'b0;
-            5'd7: c1 <= 1'b1;
-        endcase
-    end
-`endif
+always @(posedge c2) begin
+    {c1,div[1:0]} <= {c1,div[1:0]}+3'd1;
+end
 
 `ifdef SDRAM_DELAY
 real sdram_delay = `SDRAM_DELAY;
