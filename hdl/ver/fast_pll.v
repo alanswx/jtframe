@@ -5,10 +5,12 @@ module jtgng_pll0(
     output   reg c1,      // 12
     output   reg c2,      // 96
     output       c3,     // 96 (shifted by -2.5ns)
+    output       c4,
     output   locked
 );
 
 assign locked = 1'b1;
+assign c4=c1;
 
 `ifdef BASE_CLK
 real base_clk = `BASE_CLK;

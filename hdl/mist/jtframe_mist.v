@@ -76,7 +76,6 @@ module jtframe_mist(
     input  [21:0]   sdram_addr,
     output [31:0]   data_read,
     output          loop_rst,
-    input           autorefresh,
 //////////// board
     output            rst,      // synchronous reset
     output            rst_n,    // asynchronous reset
